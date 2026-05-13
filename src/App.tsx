@@ -14,10 +14,10 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 font-medium">Loading application...</p>
+          <p className="text-slate-500 font-medium text-xl">Loading StockShot...</p>
         </div>
       </div>
     );
@@ -26,7 +26,10 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route 
+        path="/login" 
+        element={!user ? <Login /> : <Navigate to="/dashboard" replace />} 
+      />
 
       {/* Protected Routes */}
       <Route
@@ -38,17 +41,6 @@ function AppRoutes() {
         }
       />
 
-      {/* Admin Only Routes */}
-      <Route
-        path="/outlets"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Outlets />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Outlet Users Routes */}
       <Route
         path="/transactions"
         element={
@@ -61,13 +53,23 @@ function AppRoutes() {
       <Route
         path="/payroll"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'outlet_manager']} requireOutlet={true}>
+          <ProtectedRoute allowedRoles={['admin', 'outlet_manager', 'staff']} requireOutlet={true}>
             <Payroll />
           </ProtectedRoute>
         }
       />
 
-      {/* Default Redirect */}
+      {/* Admin Only */}
+      <Route
+        path="/admin/outlets"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Outlets />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Default Redirects */}
       <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
