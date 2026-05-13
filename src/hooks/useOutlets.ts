@@ -22,3 +22,13 @@ export const useCreateOutlet = () => {
     },
   });
 };
+
+export const useDeleteOutlet = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => outletService.deleteOutlet(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['outlets'] });
+    },
+  });
+};
