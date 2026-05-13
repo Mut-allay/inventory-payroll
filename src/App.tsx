@@ -1,65 +1,84 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import './App.css'
-import { seedDatabase } from '@/lib/firebase/seed'
-import { Button } from '@/components/ui/button'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import Login from '@/pages/Login'
-import Dashboard from '@/pages/Dashboard'
-import { Toaster } from '@/components/ui/sonner'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { Toaster } from '@/components/ui/sonner';
 
-// Basic Unauthorized Placeholder
-const Unauthorized = () => (
-  <div className="flex flex-col items-center justify-center h-screen gap-4">
-    <h1 className="text-2xl font-bold text-red-600">Unauthorized</h1>
-    <p>You do not have permission to access this page.</p>
-    <Button onClick={() => window.location.href = '/'}>Go Home</Button>
-  </div>
-);
+import Login from '@/pages/Login';
+import Dashboard from '@/pages/Dashboard';
+import Transactions from '@/pages/Transactions';
+import Outlets from '@/pages/admin/Outlets';
+import Payroll from '@/pages/Payroll';
 
-function App() {
-  const handleSeed = async () => {
-    try {
-      await seedDatabase();
-      alert('Database seeded successfully!');
-    } catch {
-      alert('Failed to seed database. Check console.');
-    }
+function AppRoutes() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 font-medium">Loading application...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Router>
-      <Toaster position="top-right" richColors />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
 
-        {/* Example of a restricted route */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Admin Only Area</h1>
-                <Button onClick={handleSeed} className="mt-4">Seed Test Data</Button>
-              </div>
-            </ProtectedRoute>
-          } 
-        />
+      {/* Protected Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
-  )
+      {/* Admin Only Routes */}
+      <Route
+        path="/outlets"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Outlets />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Outlet Users Routes */}
+      <Route
+        path="/transactions"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'outlet_manager', 'staff']} requireOutlet={true}>
+            <Transactions />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/payroll"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'outlet_manager']} requireOutlet={true}>
+            <Payroll />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Default Redirect */}
+      <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
 }
 
-export default App
+export default function App() {
+  return (
+    <Router>
+      <Toaster position="top-right" richColors />
+      <AppRoutes />
+    </Router>
+  );
+}

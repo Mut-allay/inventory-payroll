@@ -6,6 +6,7 @@ import {
   doc, 
   getDocs, 
   getDoc,
+  deleteDoc,
   Timestamp 
 } from 'firebase/firestore';
 
@@ -20,7 +21,7 @@ export interface Outlet {
 }
 
 export const outletService = {
-  async createOutlet(outlet: Omit<Outlet, 'id' | 'createdAt'>) {
+  async createOutlet(outlet: Omit<Outlet, 'id' | 'createdAt' | 'status'>) {
     return addDoc(collection(db, 'outlets'), {
       ...outlet,
       status: 'active',
@@ -47,5 +48,9 @@ export const outletService = {
   async assignManager(outletId: string, managerUid: string) {
     const outletRef = doc(db, 'outlets', outletId);
     return updateDoc(outletRef, { managerId: managerUid });
+  },
+
+  async deleteOutlet(id: string) {
+    return deleteDoc(doc(db, 'outlets', id));
   }
 };
