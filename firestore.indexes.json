@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "stock_transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "outletId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "payroll",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "outletId", "order": "ASCENDING" },
+        { "fieldPath": "month", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "outlet_stock",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "outletId", "order": "ASCENDING" },
+        { "fieldPath": "itemId", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
