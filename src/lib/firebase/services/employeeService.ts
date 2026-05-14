@@ -1,18 +1,6 @@
 import { db } from '../config';
 import { collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
-
-export interface Employee {
-  id?: string;
-  employeeNumber: string;
-  fullName: string;
-  outletId: string;
-  position: string;
-  basicSalary: number;
-  phone?: string;
-  email?: string;
-  status: 'active' | 'inactive';
-  joinedDate: Timestamp;
-}
+import { Employee } from '@/types';
 
 export const employeeService = {
   async createEmployee(employee: Omit<Employee, 'id' | 'joinedDate' | 'status'>) {

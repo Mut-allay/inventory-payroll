@@ -3,15 +3,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 
-type Role = 'admin' | 'outlet_manager' | 'staff';
-
-interface UserData {
-  uid: string;
-  email: string;
-  displayName?: string;
-  role: Role;
-  outletId: string | null;
-}
+import { UserData } from '@/types';
 
 interface AuthContextType {
   user: User | null;

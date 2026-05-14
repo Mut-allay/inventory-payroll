@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase/config';
-import { User } from '@/types';
+import { UserData } from '@/types';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 
@@ -22,7 +22,7 @@ export const useCurrentUser = () => {
       const docRef = doc(db, 'users', userId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return { uid: docSnap.id, ...docSnap.data() } as User;
+        return { uid: docSnap.id, ...docSnap.data() } as UserData;
       }
       return null;
     },

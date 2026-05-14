@@ -9,16 +9,7 @@ import {
   deleteDoc,
   Timestamp 
 } from 'firebase/firestore';
-
-export interface Outlet {
-  id?: string;
-  name: string;
-  code: string;
-  address: string;
-  managerId?: string;
-  status: 'active' | 'inactive';
-  createdAt?: Timestamp;
-}
+import { Outlet } from '@/types';
 
 export const outletService = {
   async createOutlet(outlet: Omit<Outlet, 'id' | 'createdAt' | 'status'>) {
