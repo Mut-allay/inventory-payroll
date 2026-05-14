@@ -24,22 +24,28 @@ export default function Dashboard() {
           {userData?.role === 'admin' ? 'Global Overview' : `${userData?.outletId} Dashboard`}
         </h1>
         <div className="flex items-center gap-4">
-          {userData?.role === 'admin' && (
+          {(userData?.role === 'admin' || !userData?.role) && (
             <Button 
               onClick={async () => {
-                if (window.confirm("Seed the database with test data?")) {
-                  await seedDatabase();
-                  alert("Database seeded successfully!");
+                if (window.confirm("Seed the database with test data? This will also make you an Admin.")) {
+                  try {
+                    const { user } = await import('@/lib/firebase/config').then(m => ({ user: m.auth.currentUser }));
+                    await seedDatabase(user?.uid);
+                    alert("Database seeded successfully! Please refresh to see changes.");
+                    window.location.reload();
+                  } catch (error: any) {
+                    alert("Error: " + error.message);
+                  }
                 }
               }}
               variant="outline"
               size="sm"
             >
-              🌱 Seed Test Data
+              🌱 {userData?.role ? 'Seed Test Data' : 'First-Time Setup (Seed)'}
             </Button>
           )}
           <Badge variant="outline" className="text-lg px-4 py-2">
-            {userData?.role.toUpperCase()}
+            {userData?.role?.toUpperCase() || 'NO ROLE'}
           </Badge>
         </div>
       </div>

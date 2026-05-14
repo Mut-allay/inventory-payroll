@@ -3,36 +3,64 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users can only read their own data or admin can read all
-    match /users/{userId} {
-      allow read, write: if request.auth != null && 
-        (request.auth.uid == userId || isAdmin());
-    }
-
-    // Only admin can manage outlets
-    match /outlets/{outletId} {
-      allow read: if request.auth != null;
-      allow write: if isAdmin();
-    }
-
-    // Outlet users can only access their own outlet's stock & transactions
-    match /outlet_stock/{docId} {
-      allow read, write: if request.auth != null && 
-        (isAdmin() || resource.data.outletId == getUserOutlet());
-    }
-
-    match /stock_transactions/{docId} {
-      allow read, write: if request.auth != null && 
-        (isAdmin() || resource.data.outletId == getUserOutlet());
-    }
-
     // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     function getUserOutlet() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.outletId;
+    }
+
+    function belongsToOutlet(outletId) {
+      return isAdmin() || getUserOutlet() == outletId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || (request.auth.uid == userId);
+    }
+
+    // Outlets collection
+    match /outlets/{outletId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Global Stock Items (Definition)
+    match /stock_items/{itemId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Outlet Specific Stock
+    match /outlet_stock/{docId} {
+      allow read: if isAuthenticated() && belongsToOutlet(resource.data.outletId);
+      allow write: if isAuthenticated() && belongsToOutlet(request.resource.data.outletId);
+    }
+
+    // Stock Transactions
+    match /stock_transactions/{docId} {
+      allow read: if isAuthenticated() && belongsToOutlet(resource.data.outletId);
+      allow write: if isAuthenticated() && belongsToOutlet(request.resource.data.outletId);
+    }
+
+    // Employees
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated() && belongsToOutlet(resource.data.outletId);
+      allow write: if isAdmin() || (isAuthenticated() && getUserOutlet() == request.resource.data.outletId);
+    }
+
+    // Payroll
+    match /payroll/{payrollId} {
+      allow read: if isAuthenticated() && belongsToOutlet(resource.data.outletId);
+      allow write: if isAdmin() || (isAuthenticated() && getUserOutlet() == request.resource.data.outletId);
     }
   }
 }
