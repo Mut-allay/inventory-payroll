@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Toaster } from '@/components/ui/sonner';
@@ -8,6 +8,8 @@ import Dashboard from '@/pages/Dashboard';
 import Transactions from '@/pages/Transactions';
 import Outlets from '@/pages/admin/Outlets';
 import Payroll from '@/pages/Payroll';
+import Employees from '@/pages/Employees';
+import { Layout } from '@/components/Layout';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -31,49 +33,65 @@ function AppRoutes() {
         element={!user ? <Login /> : <Navigate to="/dashboard" replace />} 
       />
 
-      {/* Protected Routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+      {/* Protected Routes Wrapper */}
+      <Route element={<Layout><AppOutlet /></Layout>}>
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/transactions"
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'outlet_manager', 'staff']} requireOutlet={true}>
-            <Transactions />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'outlet_manager', 'staff']} requireOutlet={true}>
+              <Transactions />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/payroll"
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'outlet_manager', 'staff']} requireOutlet={true}>
-            <Payroll />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/payroll"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'outlet_manager', 'staff']} requireOutlet={true}>
+              <Payroll />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Admin Only */}
-      <Route
-        path="/admin/outlets"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Outlets />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'outlet_manager']} requireOutlet={true}>
+              <Employees />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Only */}
+        <Route
+          path="/admin/outlets"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Outlets />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
       {/* Default Redirects */}
       <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
+}
+
+// Helper to render child routes
+const AppOutlet = () => {
+  return <div className="flex-1 overflow-auto"><Outlet /></div>;
 }
 
 export default function App() {
