@@ -1,6 +1,7 @@
 import { db } from './config';
 import { collection, addDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
-import { outletService, Outlet } from './services/outletService';
+import { outletService } from './services/outletService';
+import { Outlet } from '@/types';
 
 export const seedDatabase = async (userId?: string) => {
   console.log("🌱 Starting database seeding...");

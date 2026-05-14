@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { employeeService, Employee } from '@/lib/firebase/services/employeeService';
+import { employeeService } from '@/lib/firebase/services/employeeService';
+import { Employee } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const useEmployeesByOutlet = () => {

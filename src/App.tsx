@@ -9,7 +9,7 @@ import Transactions from '@/pages/Transactions';
 import Outlets from '@/pages/admin/Outlets';
 import Payroll from '@/pages/Payroll';
 import Employees from '@/pages/Employees';
-import { Layout } from '@/components/Layout';
+import { Layout } from '@/components/layout/Layout';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
